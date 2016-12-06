@@ -20,5 +20,7 @@
 
     <cache alias="net.juancarlosfernandez.jhipster.domain.User.persistentTokens" uses-template="simple"/>
 
+    <cache alias="net.juancarlosfernandez.jhipster.domain.Points" uses-template="simple"/>
+
     <!-- jhipster-needle-ehcache-add-entry -->
 </config>
