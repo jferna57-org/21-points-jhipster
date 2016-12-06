@@ -1,0 +1,27 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipName": "user",
+            "otherEntityName": "user",
+            "relationshipType": "one-to-one",
+            "ownerSide": true
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "weeklyGoal",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "weightUnits",
+            "fieldType": "Units",
+            "fieldValues": "kg,lb"
+        }
+    ],
+    "changelogDate": "20161206170302",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "preferences",
+    "pagination": "no"
+}
