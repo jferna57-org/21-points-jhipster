@@ -24,5 +24,7 @@
 
     <cache alias="net.juancarlosfernandez.jhipster.domain.Weight" uses-template="simple"/>
 
+    <cache alias="net.juancarlosfernandez.jhipster.domain.BloodPressure" uses-template="simple"/>
+
     <!-- jhipster-needle-ehcache-add-entry -->
 </config>
