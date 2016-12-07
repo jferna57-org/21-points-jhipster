@@ -182,7 +182,7 @@ public class PointsResource {
     /**
      * GET /points -> get all points for the current week
      */
-    @RequestMapping(value = "/points-this-week")
+    @GetMapping("/points-this-week")
     @Timed
     public ResponseEntity<PointsPerWeek> getPointsThisWeek() {
 
@@ -202,7 +202,5 @@ public class PointsResource {
 
         PointsPerWeek count = new PointsPerWeek(startOfWeek, numPoints);
         return new ResponseEntity<>(count,HttpStatus.OK);
-
-
     }
 }
