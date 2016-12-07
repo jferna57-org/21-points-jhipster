@@ -108,6 +108,7 @@ Desktop.ini
 /build/
 /bin/
 /deploy/
+/out/
 
 ######################
 # Logs
