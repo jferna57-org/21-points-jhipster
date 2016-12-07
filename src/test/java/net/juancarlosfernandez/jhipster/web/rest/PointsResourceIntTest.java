@@ -3,6 +3,7 @@ package net.juancarlosfernandez.jhipster.web.rest;
 import net.juancarlosfernandez.jhipster.Application;
 
 import net.juancarlosfernandez.jhipster.domain.Points;
+import net.juancarlosfernandez.jhipster.domain.User;
 import net.juancarlosfernandez.jhipster.repository.PointsRepository;
 import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PointsSearchRepository;
@@ -24,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -298,5 +300,49 @@ public class PointsResourceIntTest {
             .andExpect(jsonPath("$.[*].meals").value(hasItem(DEFAULT_MEALS)))
             .andExpect(jsonPath("$.[*].alcohol").value(hasItem(DEFAULT_ALCOHOL)))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
+    }
+
+    private void createPointsByWeek(LocalDate thisMonday, LocalDate lastMonday) {
+
+        User user = userRepository.findOneByLogin("user").get();
+
+        // Create points in two separate weeks
+        points = new Points(thisMonday.plusDays(2),1,0,1,user);
+        pointsRepository.saveAndFlush(points);
+
+        points = new Points(thisMonday.plusDays(3), 1,1,0,user);
+        pointsRepository.saveAndFlush(points);
+
+        points = new Points(lastMonday.plusDays(3), 0,0,1,user);
+        pointsRepository.saveAndFlush(points);
+
+        points = new Points(lastMonday.plusDays(4), 1,1,0,user);
+        pointsRepository.saveAndFlush(points);
+
+    }
+
+    @Test
+    @Transactional
+    public void getPointsThisWeek() throws Exception {
+
+        LocalDate today = LocalDate.now();
+        LocalDate thisMonday = today.with(DayOfWeek.MONDAY);
+        LocalDate lastMonday = thisMonday.minusWeeks(1);
+
+        createPointsByWeek(thisMonday,lastMonday);
+
+        // create security-aware mockMvc
+        restPointsMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get all the points
+        restPointsMockMvc.perform(get("/api/points-this-week")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.week").value(thisMonday.toString()))
+            .andExpect(jsonPath("$.points").value(4));
     }
 }
