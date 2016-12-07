@@ -42,7 +42,7 @@
                     <th jh-sort-by="meals"><span data-translate="21PointsApp.points.meals">Meals</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="alcohol"><span data-translate="21PointsApp.points.alcohol">Alcohol</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="notes"><span data-translate="21PointsApp.points.notes">Notes</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="user.login" has-authority="ROLE-ADMIN"><span data-translate="21PointsApp.points.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="user.login"><span data-translate="21PointsApp.points.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -63,28 +63,26 @@
                             'glyphicon-remove text-danger': !points.alcohol}"></i>
                     </td>
                     <td>{{points.notes}}</td>
-                    <td has-authority="ROLE-ADMIN">
-                        {{points.user.login}}
-                    </td>
+                    <td>{{points.user.login}}</td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">
                             <button type="submit"
                                     ui-sref="points-detail({id:points.id})"
-                                    class="btn btn-info btn-sm">
+                                    class="btn btn-info btn-sm"
+                                    uib-tooltip="{{'entity.action.view' | translate}}">
                                 <span class="glyphicon glyphicon-eye-open"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.view"></span>
                             </button>
                             <button type="submit"
                                     ui-sref="points.edit({id:points.id})"
-                                    class="btn btn-primary btn-sm">
+                                    class="btn btn-primary btn-sm"
+                                    uib-tooltip="{{'entity.action.edit' | translate}}">
                                 <span class="glyphicon glyphicon-pencil"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.edit"></span>
                             </button>
                             <button type="submit"
                                     ui-sref="points.delete({id:points.id})"
-                                    class="btn btn-danger btn-sm">
+                                    class="btn btn-danger btn-sm"
+                                    uib-tooltip="{{'entity.action.delete' | translate}}">
                                 <span class="glyphicon glyphicon-remove-circle"></span>
-                                <span class="hidden-xs hidden-sm" data-translate="entity.action.delete"></span>
                             </button>
                         </div>
                     </td>
