@@ -115,7 +115,7 @@ public class PointsResource {
         Page<Points> page;
         // Only admin user can see all the information. Normal users can only see his data.
         if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN))
-             page = pointsRepository.findAll(pageable);
+             page = pointsRepository.findAllByOrderByDateDesc(pageable);
         else
             page = pointsRepository.findByUserIsCurrentUser(pageable);
 
