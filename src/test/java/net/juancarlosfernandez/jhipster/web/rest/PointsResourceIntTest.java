@@ -4,6 +4,7 @@ import net.juancarlosfernandez.jhipster.Application;
 
 import net.juancarlosfernandez.jhipster.domain.Points;
 import net.juancarlosfernandez.jhipster.repository.PointsRepository;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PointsSearchRepository;
 
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -28,8 +30,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
 /**
  * Test class for the PointsResource REST controller.
@@ -70,6 +75,12 @@ public class PointsResourceIntTest {
     @Inject
     private EntityManager em;
 
+    @Inject
+    private WebApplicationContext context;
+
+    @Inject
+    private UserRepository userRepository;
+
     private MockMvc restPointsMockMvc;
 
     private Points points;
@@ -80,6 +91,8 @@ public class PointsResourceIntTest {
         PointsResource pointsResource = new PointsResource();
         ReflectionTestUtils.setField(pointsResource, "pointsSearchRepository", pointsSearchRepository);
         ReflectionTestUtils.setField(pointsResource, "pointsRepository", pointsRepository);
+        ReflectionTestUtils.setField(pointsResource, "userRepository", userRepository);
+
         this.restPointsMockMvc = MockMvcBuilders.standaloneSetup(pointsResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -112,9 +125,15 @@ public class PointsResourceIntTest {
     public void createPoints() throws Exception {
         int databaseSizeBeforeCreate = pointsRepository.findAll().size();
 
-        // Create the Points
+        // Create security-aware mockMvc
+        restPointsMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
 
+        // Create the Points
         restPointsMockMvc.perform(post("/api/points")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(points)))
             .andExpect(status().isCreated());

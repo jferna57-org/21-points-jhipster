@@ -4,7 +4,10 @@ import com.codahale.metrics.annotation.Timed;
 import net.juancarlosfernandez.jhipster.domain.Points;
 
 import net.juancarlosfernandez.jhipster.repository.PointsRepository;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PointsSearchRepository;
+import net.juancarlosfernandez.jhipster.security.AuthoritiesConstants;
+import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import net.juancarlosfernandez.jhipster.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -35,12 +38,16 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class PointsResource {
 
     private final Logger log = LoggerFactory.getLogger(PointsResource.class);
-        
+
     @Inject
     private PointsRepository pointsRepository;
 
     @Inject
     private PointsSearchRepository pointsSearchRepository;
+
+
+    @Inject
+    private UserRepository userRepository;
 
     /**
      * POST  /points : Create a new points.
@@ -56,6 +63,13 @@ public class PointsResource {
         if (points.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("points", "idexists", "A new points cannot already have an ID")).body(null);
         }
+
+        // Add user credentials when the user is not admin.
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            log.debug("No user passed in, using current user: {} ", SecurityUtils.getCurrentUserLogin());
+            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).get());
+        }
+
         Points result = pointsRepository.save(points);
         pointsSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/points/" + result.getId()))
@@ -140,7 +154,7 @@ public class PointsResource {
      * SEARCH  /_search/points?query=:query : search for the points corresponding
      * to the query.
      *
-     * @param query the query of the points search 
+     * @param query the query of the points search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
