@@ -20,7 +20,7 @@ public interface PointsRepository extends JpaRepository<Points,Long> {
 
     Page<Points> findAllByOrderByDateDesc(Pageable pageable);
 
-    List<Points> findAllByDateBetween(LocalDate firstDate, LocalDate lastDate);
+    List<Points> findAllByDateBetweenAndUserLogin(LocalDate firstDate, LocalDate lastDate, String login);
 
 
 }

@@ -193,11 +193,10 @@ public class PointsResource {
 
         log.debug("looking for points between: {} and {}", startOfWeek, endOfWeek);
 
-        List<Points> points = pointsRepository.findAllByDateBetween(startOfWeek,endOfWeek);
+        List<Points> points = pointsRepository.findAllByDateBetweenAndUserLogin(startOfWeek,endOfWeek,SecurityUtils.getCurrentUserLogin());
 
         //filter by current user and sum the points
         Integer numPoints = points.stream()
-            .filter( p-> p.getUser().getLogin().equals(SecurityUtils.getCurrentUserLogin()))
             .mapToInt( p-> p.getExercise() + p.getMeals() + p.getAlcohol())
             .sum();
 
