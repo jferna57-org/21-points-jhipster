@@ -2,6 +2,8 @@ package net.juancarlosfernandez.jhipster.repository;
 
 import net.juancarlosfernandez.jhipster.domain.Points;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 
 import java.util.List;
@@ -13,6 +15,6 @@ import java.util.List;
 public interface PointsRepository extends JpaRepository<Points,Long> {
 
     @Query("select points from Points points where points.user.login = ?#{principal.username}")
-    List<Points> findByUserIsCurrentUser();
+    Page<Points> findByUserIsCurrentUser(Pageable pageable);
 
 }
