@@ -35,7 +35,6 @@
         <table class="jh-table table table-striped">
             <thead>
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.reset()">
-                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="date"><span data-translate="21PointsApp.points.date">Date</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="exercise"><span data-translate="21PointsApp.points.exercise">Exercise</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="meals"><span data-translate="21PointsApp.points.meals">Meals</span> <span class="glyphicon glyphicon-sort"></span></th>
@@ -47,8 +46,8 @@
             </thead>
             <tbody infinite-scroll="vm.loadPage(vm.page + 1)" infinite-scroll-disabled="vm.page >= vm.links['last']">
                 <tr ng-repeat="points in vm.points track by points.id">
-                    <td><a ui-sref="points-detail({id:points.id})">{{points.id}}</a></td>
-                        <td>{{points.date | date:'mediumDate'}}</td>
+
+                    <td><a ui-sref="points-detail({id:points.id})">{{points.date | date:'mediumDate'}}</a></td>
                     <td>{{points.exercise}}</td>
                     <td>{{points.meals}}</td>
                     <td>{{points.alcohol}}</td>
