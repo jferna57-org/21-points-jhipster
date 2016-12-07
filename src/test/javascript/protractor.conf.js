@@ -9,7 +9,7 @@ var webbrowserDriver= '';
 if (os.platform() === 'win32') {
     webbrowserDriver = prefix + 'node_modules/protractor/node_modules/webdriver-manager/selenium/chromedriver_2.22.exe';
 } else {
-    webbrowserDriver = prefix + 'node_modules/protractor/node_modules/webdriver-manager/selenium/chromedriver_2.22';
+    webbrowserDriver = prefix + 'node_modules/protractor/node_modules/webdriver-manager/selenium/chromedriver_2.25';
 }
 
 exports.config = {
@@ -24,7 +24,7 @@ exports.config = {
     },
 
     capabilities: {
-        'browserName': 'firefox',
+        'browserName': 'chrome',
         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
         'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
     },
