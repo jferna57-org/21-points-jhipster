@@ -27,12 +27,12 @@
         <dd>
             <span>{{vm.points.notes}}</span>
         </dd>
-        <div>
-            <dt ><span data-translate="21PointsApp.points.user">User</span></dt>
-            <dd >
-                {{vm.points.user.login}}
-            </dd>
-        </div>
+
+        <dt has-authority="ROLE_ADMIN"><span data-translate="21PointsApp.points.user">User</span></dt>
+        <dd has-authority="ROLE_ADMIN">
+            {{vm.points.user.login}}
+        </dd>
+
     </dl>
 
     <button type="submit"

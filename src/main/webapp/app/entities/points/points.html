@@ -42,7 +42,7 @@
                     <th jh-sort-by="meals"><span data-translate="21PointsApp.points.meals">Meals</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="alcohol"><span data-translate="21PointsApp.points.alcohol">Alcohol</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="notes"><span data-translate="21PointsApp.points.notes">Notes</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="user.login"><span data-translate="21PointsApp.points.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="user.login" has-authority="ROLE_ADMIN"><span data-translate="21PointsApp.points.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -63,7 +63,7 @@
                             'glyphicon-remove text-danger': !points.alcohol}"></i>
                     </td>
                     <td>{{points.notes}}</td>
-                    <td>{{points.user.login}}</td>
+                    <td has-authority="ROLE_ADMIN">{{points.user.login}}</td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">
                             <button type="submit"
