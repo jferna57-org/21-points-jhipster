@@ -5,9 +5,9 @@
         .module('21PointsApp')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', 'Principal', 'LoginService', 'Points', '$state'];
+    HomeController.$inject = ['$scope', 'Principal', 'LoginService', 'Points', 'Preferences', '$state'];
 
-    function HomeController ($scope, Principal, LoginService, Points, $state) {
+    function HomeController ($scope, Principal, LoginService, Points, Preferences, $state) {
         var vm = this;
 
         vm.account = null;
@@ -24,6 +24,10 @@
             Principal.identity().then(function(account) {
                 vm.account = account;
                 vm.isAuthenticated = Principal.isAuthenticated;
+            });
+
+            Preferences.user(function(data){
+                vm.preferences = data;
             });
 
             Points.thisWeek(function(data){

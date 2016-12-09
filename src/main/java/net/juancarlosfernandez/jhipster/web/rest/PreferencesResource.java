@@ -5,15 +5,19 @@ import net.juancarlosfernandez.jhipster.domain.Preferences;
 
 import net.juancarlosfernandez.jhipster.repository.PreferencesRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PreferencesSearchRepository;
+import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
+import javax.xml.ws.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -31,7 +35,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class PreferencesResource {
 
     private final Logger log = LoggerFactory.getLogger(PreferencesResource.class);
-        
+
     @Inject
     private PreferencesRepository preferencesRepository;
 
@@ -132,7 +136,7 @@ public class PreferencesResource {
      * SEARCH  /_search/preferences?query=:query : search for the preferences corresponding
      * to the query.
      *
-     * @param query the query of the preferences search 
+     * @param query the query of the preferences search
      * @return the result of the search
      */
     @GetMapping("/_search/preferences")
@@ -144,5 +148,24 @@ public class PreferencesResource {
             .collect(Collectors.toList());
     }
 
+    /**
+     * GET /my-preferences -> get the current user's preferences
+     */
+    @RequestMapping(value = "/my-preferences",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Preferences> getUserPreferences(){
+        String username = SecurityUtils.getCurrentUserLogin();
+        log.debug("Rest request to get Preferences: {}",username);
+        Optional<Preferences> preferences = preferencesRepository.findOneByUserLogin(username);
 
+        if(preferences.isPresent()){
+            return new ResponseEntity<Preferences>(preferences.get(), HttpStatus.OK);
+        } else {
+            Preferences defaultPreferences = new Preferences();
+            defaultPreferences.setWeeklyGoal(10);
+            return new ResponseEntity<Preferences>(defaultPreferences, HttpStatus.OK);
+        }
+    }
 }
