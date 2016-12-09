@@ -3,7 +3,9 @@ package net.juancarlosfernandez.jhipster.web.rest;
 import net.juancarlosfernandez.jhipster.Application;
 
 import net.juancarlosfernandez.jhipster.domain.BloodPressure;
+import net.juancarlosfernandez.jhipster.domain.User;
 import net.juancarlosfernandez.jhipster.repository.BloodPressureRepository;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.BloodPressureSearchRepository;
 
 import org.junit.Before;
@@ -19,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -31,8 +34,12 @@ import java.util.List;
 import static net.juancarlosfernandez.jhipster.web.rest.TestUtil.sameInstant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Test class for the BloodPressureResource REST controller.
@@ -66,6 +73,12 @@ public class BloodPressureResourceIntTest {
 
     @Inject
     private EntityManager em;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private WebApplicationContext context;
 
     private MockMvc restBloodPressureMockMvc;
 
@@ -291,5 +304,59 @@ public class BloodPressureResourceIntTest {
             .andExpect(jsonPath("$.[*].dateTime").value(hasItem(sameInstant(DEFAULT_DATE_TIME))))
             .andExpect(jsonPath("$.[*].systolic").value(hasItem(DEFAULT_SYSTOLIC)))
             .andExpect(jsonPath("$.[*].diastolic").value(hasItem(DEFAULT_DIASTOLIC)));
+    }
+
+    private void createBloodPressureByMonth(ZonedDateTime firstDate,ZonedDateTime firstDayOfLastMonth){
+        User user = userRepository.findOneByLogin("user").get();
+
+        bloodPressure = new BloodPressure(firstDate, 120, 80, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(10), 125, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(20), 100, 69, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+
+        // last month
+        bloodPressure = new BloodPressure(firstDayOfLastMonth, 130, 90, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(11), 135, 85, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(23), 130, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+
+    }
+
+    @Test
+    @Transactional
+    public void getBloodPressureForLast30Days() throws Exception {
+
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime twentyNineDaysAgo = now.minusDays(29);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createBloodPressureByMonth(twentyNineDaysAgo, firstDayOfLastMonth);
+
+        // create security-aware mockMvc
+        restBloodPressureMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get all the blood pressure readings
+        restBloodPressureMockMvc.perform(get("/api/blood-pressures")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the blood pressure readings for the last 30 days
+        restBloodPressureMockMvc.perform(get("/api/bp-by-days/{days}", 30)
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.readings.[*].systolic").value(hasItem(120)))
+            .andExpect(jsonPath("$.readings.[*].diastolic").value(hasItem(69)));
+
     }
 }

@@ -4,6 +4,7 @@ import net.juancarlosfernandez.jhipster.domain.BloodPressure;
 
 import org.springframework.data.jpa.repository.*;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -15,4 +16,5 @@ public interface BloodPressureRepository extends JpaRepository<BloodPressure,Lon
     @Query("select bloodPressure from BloodPressure bloodPressure where bloodPressure.user.login = ?#{principal.username}")
     List<BloodPressure> findByUserIsCurrentUser();
 
+    List<BloodPressure> findAllByDateTimeBetweenAndUserLoginOrderByDateTimeDesc(ZonedDateTime firstDate, ZonedDateTime secondDate, String login);
 }

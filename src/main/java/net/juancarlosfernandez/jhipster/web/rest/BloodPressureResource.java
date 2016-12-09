@@ -5,8 +5,10 @@ import net.juancarlosfernandez.jhipster.domain.BloodPressure;
 
 import net.juancarlosfernandez.jhipster.repository.BloodPressureRepository;
 import net.juancarlosfernandez.jhipster.repository.search.BloodPressureSearchRepository;
+import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import net.juancarlosfernandez.jhipster.web.rest.util.PaginationUtil;
+import net.juancarlosfernandez.jhipster.web.rest.vm.BloodPressureByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,9 +22,11 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -35,7 +39,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class BloodPressureResource {
 
     private final Logger log = LoggerFactory.getLogger(BloodPressureResource.class);
-        
+
     @Inject
     private BloodPressureRepository bloodPressureRepository;
 
@@ -140,7 +144,7 @@ public class BloodPressureResource {
      * SEARCH  /_search/blood-pressures?query=:query : search for the bloodPressure corresponding
      * to the query.
      *
-     * @param query the query of the bloodPressure search 
+     * @param query the query of the bloodPressure search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -155,5 +159,18 @@ public class BloodPressureResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    /**
+     * GET /bp-by-days: get all the blood pressure reading by last x days
+     */
+    @GetMapping("/bp-by-days/{days}")
+    @Timed
+    public ResponseEntity<BloodPressureByPeriod> getByDays(@PathVariable int days){
+        ZonedDateTime rightNow = ZonedDateTime.now();
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
+
+        List<BloodPressure> readings = bloodPressureRepository.findAllByDateTimeBetweenAndUserLoginOrderByDateTimeDesc(daysAgo, rightNow,SecurityUtils.getCurrentUserLogin());
+        BloodPressureByPeriod response = new BloodPressureByPeriod("Last " + days + " Days", readings);
+        return new ResponseEntity<BloodPressureByPeriod>(response,HttpStatus.OK);
+    }
 
 }

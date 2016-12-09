@@ -40,6 +40,15 @@ public class BloodPressure implements Serializable {
     @ManyToOne
     private User user;
 
+    public BloodPressure(){};
+
+    public BloodPressure(ZonedDateTime dateTime, Integer systolic, Integer diastolic, User user){
+        this.dateTime = dateTime;
+        this.diastolic = diastolic;
+        this.systolic = systolic;
+        this.user = user;
+    }
+
     public Long getId() {
         return id;
     }
