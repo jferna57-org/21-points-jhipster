@@ -29,19 +29,22 @@ public class Points implements Serializable {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
+    @NotNull
     @Min(value = 0)
     @Max(value = 1)
-    @Column(name = "exercise")
+    @Column(name = "exercise",nullable = false)
     private Integer exercise;
 
+    @NotNull
     @Min(value = 0)
     @Max(value = 1)
-    @Column(name = "meals")
+    @Column(name = "meals",nullable = false)
     private Integer meals;
 
+    @NotNull
     @Min(value = 0)
     @Max(value = 1)
-    @Column(name = "alcohol")
+    @Column(name = "alcohol",nullable = false)
     private Integer alcohol;
 
     @Size(max = 140)
