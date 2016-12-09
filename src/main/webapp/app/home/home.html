@@ -22,27 +22,22 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-10">
-                            <div class="progress progress-lg" ng-if="vm.pointsThisWeek.points">
-                                <div class="progress-bar progress-bar-striped" role="progressbar"
-                                     ng-class="{'progress-bar-success': vm.pointsThisWeek.points >= vm.preferences.weeklyGoal,
-                                                'progress-bar-danger': vm.pointsThisWeek.points < 10,
-                                                'progress-bar-warning': vm.pointsThisWeek.points > 10 && vm.pointsThisWeek.points < vm.preferences.weeklyGoal}"
-                                     aria-valuenow="{{vm.pointsThisWeek.points}}"
-                                     aria-valuemin="0" aria-valuemax="21" style="width: {{vm.pointsPercentage}}%">
-                                    <span ng-show="vm.pointsThisWeek.points">
-                                        {{vm.pointsThisWeek.points}} / Goal: {{vm.preferences.weeklyGoal}}
-                                    </span>
-                                    <span class="sr-only">{{vm.pointsPercentage}} points this week</span>
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="progress progress-lg" ng-show="vm.pointsThisWeek.points">
+                                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
+                                         aria-valuenow="{{vm.pointsThisWeek.points}}"
+                                         aria-valuemin="0" aria-valuemax="21" style="width: {{vm.pointsPercentage}}%">
+                                        {{vm.pointsThisWeek.points}} / Goal: 10
+                                    </div>
                                 </div>
-                            </div>
-                            <div uib-alert type="info" ng-hide="vm.pointsThisWeek.points">
-                                No points yet this week, better get moving!
+                                <alert type="info" ng-hide="vm.pointsThisWeek.points">
+                                    No points yet this week, better get moving!
+                                </alert>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <p data-translate="home.question">
