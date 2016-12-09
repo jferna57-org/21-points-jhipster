@@ -3,7 +3,9 @@ package net.juancarlosfernandez.jhipster.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import net.juancarlosfernandez.jhipster.domain.Preferences;
 
+import net.juancarlosfernandez.jhipster.domain.User;
 import net.juancarlosfernandez.jhipster.repository.PreferencesRepository;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PreferencesSearchRepository;
 import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
@@ -42,6 +44,9 @@ public class PreferencesResource {
     @Inject
     private PreferencesSearchRepository preferencesSearchRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
     /**
      * POST  /preferences : Create a new preferences.
      *
@@ -56,6 +61,11 @@ public class PreferencesResource {
         if (preferences.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("preferences", "idexists", "A new preferences cannot already have an ID")).body(null);
         }
+
+        log.debug("Settings preferences for current user: {}", SecurityUtils.getCurrentUserLogin());
+        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).get();
+        preferences.setUser(user);
+
         Preferences result = preferencesRepository.save(preferences);
         preferencesSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/preferences/" + result.getId()))

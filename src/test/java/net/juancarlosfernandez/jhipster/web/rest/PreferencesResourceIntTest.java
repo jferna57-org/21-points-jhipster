@@ -26,10 +26,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import net.juancarlosfernandez.jhipster.domain.enumeration.Units;
+import org.springframework.web.context.WebApplicationContext;
+
 /**
  * Test class for the PreferencesResource REST controller.
  *
@@ -59,6 +63,9 @@ public class PreferencesResourceIntTest {
 
     @Inject
     private EntityManager em;
+
+    @Inject
+    private WebApplicationContext context;
 
     private MockMvc restPreferencesMockMvc;
 
@@ -99,9 +106,16 @@ public class PreferencesResourceIntTest {
     public void createPreferences() throws Exception {
         int databaseSizeBeforeCreate = preferencesRepository.findAll().size();
 
+        // create security-aware mockMvc
+        restPreferencesMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Create the Preferences
 
         restPreferencesMockMvc.perform(post("/api/preferences")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(preferences)))
             .andExpect(status().isCreated());
