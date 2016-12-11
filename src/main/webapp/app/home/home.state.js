@@ -62,6 +62,43 @@
                 });
             }]
         })
+        .state('blood-pressure.add', {
+                    parent: 'home',
+                    url: '/new',
+                    data: {
+                        authorities: ['ROLE_USER']
+                    },
+                    resolve: {
+                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+                            $translatePartialLoader.addPart('bloodPressure');
+                            $translatePartialLoader.addPart('global');
+                            return $translate.refresh();
+                        }]
+                    },
+                    onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                        $uibModal.open({
+                            templateUrl: 'app/entities/blood-pressure/blood-pressure-dialog.html',
+                            controller: 'BloodPressureDialogController',
+                            controllerAs: 'vm',
+                            backdrop: 'static',
+                            size: 'lg',
+                            resolve: {
+                                entity: function () {
+                                    return {
+                                        dateTime: null,
+                                        systolic: null,
+                                        diastolic: null,
+                                        id: null
+                                    };
+                                }
+                            }
+                        }).result.then(function() {
+                            $state.go('home', null, { reload: true });
+                        }, function() {
+                            $state.go('home');
+                        });
+                    }]
+                })
         .state('points.add', {
             parent: 'home',
             url: '/add/points',
