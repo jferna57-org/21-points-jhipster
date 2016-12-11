@@ -37,21 +37,19 @@
         <table class="jh-table table table-striped">
             <thead>
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.reset()">
-                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="dateTime"><span data-translate="21PointsApp.bloodPressure.dateTime">Date Time</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="systolic"><span data-translate="21PointsApp.bloodPressure.systolic">Systolic</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="diastolic"><span data-translate="21PointsApp.bloodPressure.diastolic">Diastolic</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="user.login"><span data-translate="21PointsApp.bloodPressure.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="user.login" has-authority="ROLE_ADMIN"><span data-translate="21PointsApp.bloodPressure.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody infinite-scroll="vm.loadPage(vm.page + 1)" infinite-scroll-disabled="vm.page >= vm.links['last']">
                 <tr ng-repeat="bloodPressure in vm.bloodPressures track by bloodPressure.id">
-                    <td><a ui-sref="blood-pressure-detail({id:bloodPressure.id})">{{bloodPressure.id}}</a></td>
-                    <td>{{bloodPressure.dateTime | date:'medium'}}</td>
+                    <td><a ui-sref="blood-pressure-detail({id:bloodPressure.id})">{{bloodPressure.dateTime | date:'medium'}}</a></td>
                     <td>{{bloodPressure.systolic}}</td>
                     <td>{{bloodPressure.diastolic}}</td>
-                    <td>
+                    <td has-authority="ROLE_ADMIN">
                         {{bloodPressure.user.login}}
                     </td>
                     <td class="text-right">

@@ -4,7 +4,9 @@ import com.codahale.metrics.annotation.Timed;
 import net.juancarlosfernandez.jhipster.domain.BloodPressure;
 
 import net.juancarlosfernandez.jhipster.repository.BloodPressureRepository;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.BloodPressureSearchRepository;
+import net.juancarlosfernandez.jhipster.security.AuthoritiesConstants;
 import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import net.juancarlosfernandez.jhipster.web.rest.util.PaginationUtil;
@@ -46,6 +48,9 @@ public class BloodPressureResource {
     @Inject
     private BloodPressureSearchRepository bloodPressureSearchRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
     /**
      * POST  /blood-pressures : Create a new bloodPressure.
      *
@@ -60,6 +65,12 @@ public class BloodPressureResource {
         if (bloodPressure.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("bloodPressure", "idexists", "A new bloodPressure cannot already have an ID")).body(null);
         }
+        // Add user credentials when the user is not admin.
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            log.debug("No user passed in, using current user: {} ", SecurityUtils.getCurrentUserLogin());
+            bloodPressure.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).get());
+        }
+
         BloodPressure result = bloodPressureRepository.save(bloodPressure);
         bloodPressureSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/blood-pressures/" + result.getId()))

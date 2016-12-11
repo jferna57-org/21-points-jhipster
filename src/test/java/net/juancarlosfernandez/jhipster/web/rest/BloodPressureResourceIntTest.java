@@ -120,9 +120,15 @@ public class BloodPressureResourceIntTest {
     public void createBloodPressure() throws Exception {
         int databaseSizeBeforeCreate = bloodPressureRepository.findAll().size();
 
-        // Create the BloodPressure
+        // Create security-aware mockMvc
+        restBloodPressureMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
 
+        // Create the BloodPressure
         restBloodPressureMockMvc.perform(post("/api/blood-pressures")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(bloodPressure)))
             .andExpect(status().isCreated());

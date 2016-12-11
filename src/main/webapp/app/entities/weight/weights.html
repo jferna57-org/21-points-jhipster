@@ -36,19 +36,17 @@
         <table class="jh-table table table-striped">
             <thead>
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.reset()">
-                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="dateTime"><span data-translate="21PointsApp.weight.dateTime">Date Time</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="weight"><span data-translate="21PointsApp.weight.weight">Weight</span> <span class="glyphicon glyphicon-sort"></span></th>
-                    <th jh-sort-by="user.login"><span data-translate="21PointsApp.weight.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="user.login" has-authority="ROLE_ADMIN"><span data-translate="21PointsApp.weight.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody infinite-scroll="vm.loadPage(vm.page + 1)" infinite-scroll-disabled="vm.page >= vm.links['last']">
                 <tr ng-repeat="weight in vm.weights track by weight.id">
-                    <td><a ui-sref="weight-detail({id:weight.id})">{{weight.id}}</a></td>
-                    <td>{{weight.dateTime | date:'medium'}}</td>
+                    <td><a ui-sref="weight-detail({id:weight.id})">{{weight.dateTime | date:'medium'}}</a></td>
                     <td>{{weight.weight}}</td>
-                    <td>
+                    <td has-authority="ROLE_ADMIN">
                         {{weight.user.login}}
                     </td>
                     <td class="text-right">

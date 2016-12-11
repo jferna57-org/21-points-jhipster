@@ -3,8 +3,10 @@ package net.juancarlosfernandez.jhipster.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import net.juancarlosfernandez.jhipster.domain.Weight;
 
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.WeightRepository;
 import net.juancarlosfernandez.jhipster.repository.search.WeightSearchRepository;
+import net.juancarlosfernandez.jhipster.security.AuthoritiesConstants;
 import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import net.juancarlosfernandez.jhipster.web.rest.util.PaginationUtil;
@@ -45,6 +47,9 @@ public class WeightResource {
     @Inject
     private WeightSearchRepository weightSearchRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
     /**
      * POST  /weights : Create a new weight.
      *
@@ -59,6 +64,13 @@ public class WeightResource {
         if (weight.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("weight", "idexists", "A new weight cannot already have an ID")).body(null);
         }
+
+        // Add user credentials when the user is not admin.
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            log.debug("No user passed in, using current user: {} ", SecurityUtils.getCurrentUserLogin());
+            weight.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).get());
+        }
+
         Weight result = weightRepository.save(weight);
         weightSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/weights/" + result.getId()))

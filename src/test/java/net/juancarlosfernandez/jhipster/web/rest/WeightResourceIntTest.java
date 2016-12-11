@@ -115,9 +115,15 @@ public class WeightResourceIntTest {
     public void createWeight() throws Exception {
         int databaseSizeBeforeCreate = weightRepository.findAll().size();
 
-        // Create the Weight
+        // Create security-aware mockMvc
+        restWeightMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
 
+        // Create the Weight
         restWeightMockMvc.perform(post("/api/weights")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(weight)))
             .andExpect(status().isCreated());
