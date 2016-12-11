@@ -99,6 +99,42 @@
                         });
                     }]
                 })
+        .state('weight.add', {
+                    parent: 'home',
+                    url: '/add/weight',
+                    data: {
+                        authorities: ['ROLE_USER']
+                    },
+                    resolve: {
+                        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+                            $translatePartialLoader.addPart('weight');
+                            $translatePartialLoader.addPart('global');
+                            return $translate.refresh();
+                        }]
+                    },
+                    onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                        $uibModal.open({
+                            templateUrl: 'app/entities/weight/weight-dialog.html',
+                            controller: 'WeightDialogController',
+                            controllerAs: 'vm',
+                            backdrop: 'static',
+                            size: 'lg',
+                            resolve: {
+                                entity: function () {
+                                    return {
+                                        dateTime: null,
+                                        weight: null,
+                                        id: null
+                                    };
+                                }
+                            }
+                        }).result.then(function() {
+                            $state.go('home', null, { reload: true });
+                        }, function() {
+                            $state.go('home');
+                        });
+                    }]
+                })
         .state('points.add', {
             parent: 'home',
             url: '/add/points',
