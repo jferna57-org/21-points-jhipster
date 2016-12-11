@@ -1,35 +1,36 @@
 <div>
-    <h2 data-translate="21PointsApp.weight.home.title">Weights</h2>
-    <jhi-alert></jhi-alert>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-4 no-padding-left">
-                <button class="btn btn-primary" ui-sref="weight.new" >
-                    <span class="glyphicon glyphicon-plus"></span>
-                    <span class="hidden-xs"  data-translate="21PointsApp.weight.home.createLabel">
-                        Create new Weight
+    <div class="row">
+        <div class="col-sm-7">
+            <h2 data-translate="21PointsApp.weight.home.title">weight</h2>
+        </div>
+        <div class="col-sm-5 text-right p-n">
+            <form name="searchForm" class="form-inline">
+                <div class="input-group pull-right" >
+                    <input type="text" class="form-control" ng-model="vm.searchQuery" id="searchQuery"
+                           placeholder="{{'21PointsApp.weight.home.search' | translate }}">
+                    <span  class="input-group-btn width-min" >
+                        <button class="btn btn-info" ng-click="vm.search(vm.searchQuery)"
+                                uib-tooltip="{{'21PointsApp.weight.home.search' | translate}}">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
                     </span>
-                </button>
-            </div>
-            <div class="col-xs-8 no-padding-right">
-                <form name="searchForm" class="form-inline">
-                    <div class="input-group pull-right" >
-                        <input type="text" class="form-control" ng-model="vm.searchQuery" id="searchQuery" placeholder="{{ '21PointsApp.weight.home.search' | translate }}">
-                        <span  class="input-group-btn width-min" >
-                            <button class="btn btn-info" ng-click="vm.search(vm.searchQuery)">
-                                <span class="glyphicon glyphicon-search"></span>
-                            </button>
-                        </span>
-                        <span class="input-group-btn width-min" ng-if="vm.currentSearch">
-                            <button class="btn btn-info" ng-click="vm.clear()">
-                                <span class="glyphicon glyphicon-trash"></span>
-                            </button>
-                        </span>
-                    </div>
-                </form>
-            </div>
+                    <span  class="input-group-btn width-min" >
+                        <button class="btn btn-primary" ui-sref="weight.new"
+                                uib-tooltip="{{'21PointsApp.weight.home.createLabel' | translate}}">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </span>
+                    <span class="input-group-btn width-min" ng-if="vm.currentSearch">
+                        <button class="btn btn-info" ng-click="vm.clear()" >
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
         </div>
     </div>
+    <jhi-alert></jhi-alert>
+
     <br/>
     <div class="table-responsive">
         <table class="jh-table table table-striped">
