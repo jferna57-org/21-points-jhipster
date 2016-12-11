@@ -2,7 +2,9 @@ package net.juancarlosfernandez.jhipster.web.rest;
 
 import net.juancarlosfernandez.jhipster.Application;
 
+import net.juancarlosfernandez.jhipster.domain.User;
 import net.juancarlosfernandez.jhipster.domain.Weight;
+import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.WeightRepository;
 import net.juancarlosfernandez.jhipster.repository.search.WeightSearchRepository;
 
@@ -19,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -31,8 +34,11 @@ import java.util.List;
 import static net.juancarlosfernandez.jhipster.web.rest.TestUtil.sameInstant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
  * Test class for the WeightResource REST controller.
@@ -63,6 +69,12 @@ public class WeightResourceIntTest {
 
     @Inject
     private EntityManager em;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private WebApplicationContext context;
 
     private MockMvc restWeightMockMvc;
 
@@ -263,5 +275,47 @@ public class WeightResourceIntTest {
             .andExpect(jsonPath("$.[*].id").value(hasItem(weight.getId().intValue())))
             .andExpect(jsonPath("$.[*].dateTime").value(hasItem(sameInstant(DEFAULT_DATE_TIME))))
             .andExpect(jsonPath("$.[*].weight").value(hasItem(DEFAULT_WEIGHT)));
+    }
+
+    private void createWeightByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth){
+        User user = userRepository.findOneByLogin("user").get();
+
+        weight = new Weight(firstDate,60,user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDate.plusDays(10),70,user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDate.plusDays(20),65,user);
+        weightRepository.saveAndFlush(weight);
+
+    }
+
+    @Test
+    @Transactional
+    public void getWeightForLast30Days() throws Exception{
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime twentyNineDaysAgo = now.minusDays(29);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createWeightByMonth(twentyNineDaysAgo,firstDayOfLastMonth);
+
+        // create security-aware mockMvc
+        restWeightMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get all weights readings
+        restWeightMockMvc.perform(get("/api/weights")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$",hasSize(3)));
+
+        restWeightMockMvc.perform(get("/api/weights-by-days/{days}", 30)
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.weighIns[*].weight").value(hasItem(60)));
+
     }
 }

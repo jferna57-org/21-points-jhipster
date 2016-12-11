@@ -5,8 +5,10 @@ import net.juancarlosfernandez.jhipster.domain.Weight;
 
 import net.juancarlosfernandez.jhipster.repository.WeightRepository;
 import net.juancarlosfernandez.jhipster.repository.search.WeightSearchRepository;
+import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import net.juancarlosfernandez.jhipster.web.rest.util.PaginationUtil;
+import net.juancarlosfernandez.jhipster.web.rest.vm.WeightByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +38,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class WeightResource {
 
     private final Logger log = LoggerFactory.getLogger(WeightResource.class);
-        
+
     @Inject
     private WeightRepository weightRepository;
 
@@ -140,7 +143,7 @@ public class WeightResource {
      * SEARCH  /_search/weights?query=:query : search for the weight corresponding
      * to the query.
      *
-     * @param query the query of the weight search 
+     * @param query the query of the weight search
      * @param pageable the pagination information
      * @return the result of the search
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -155,5 +158,17 @@ public class WeightResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    /**
+     * GET /weight-by-days : get all weight readings for the last x days
+     */
+    @GetMapping("/weights-by-days/{days}")
+    @Timed
+    public ResponseEntity<WeightByPeriod> getByDays(@PathVariable int days){
+        ZonedDateTime rightNow = ZonedDateTime.now();
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
 
+        List<Weight> readings = weightRepository.findAllByDateTimeBetweenAndUserLoginOrderByDateTimeDesc(daysAgo,rightNow, SecurityUtils.getCurrentUserLogin());
+        WeightByPeriod result = new WeightByPeriod("Last " + days + " Days",readings);
+        return new ResponseEntity<WeightByPeriod>(result,HttpStatus.OK);
+    }
 }

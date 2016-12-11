@@ -70,6 +70,31 @@
                             vm.bpOptions.chart.yDomain = [Math.min.apply(Math, lowerValues) - 10, Math.max.apply(Math, upperValues) + 10]
                         }
                     });
+                    Weight.last30Days(function (weights) {
+                        vm.weights = weights;
+                        if (weights.weighIns.length) {
+                            vm.weightOptions = angular.copy(Chart.getBpChartConfig());
+                            vm.weightOptions.title.text = weights.period;
+                            vm.weightOptions.chart.yAxis.axisLabel = "Weight";
+                            var weightValues = [];
+                            var values = [];
+                            weights.weighIns.forEach(function (item) {
+                                weightValues.push({
+                                    x: new Date(item.dateTime),
+                                    y: item.weight
+                                });
+                                values.push(item.weight);
+                            });
+                            vm.weightData = [{
+                                values: weightValues,
+                                key: 'Weight',
+                                color: '#ffeb3b',
+                                area: true
+                            }];
+                            // set y scale to be 10 more than max and min
+                            vm.weightOptions.chart.yDomain = [Math.min.apply(Math, values) - 10, Math.max.apply(Math, values) + 10];
+                        }
+                    });
                 }
             });
         }
