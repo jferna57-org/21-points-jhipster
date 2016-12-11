@@ -113,7 +113,15 @@ public class BloodPressureResource {
     public ResponseEntity<List<BloodPressure>> getAllBloodPressures(Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of BloodPressures");
-        Page<BloodPressure> page = bloodPressureRepository.findAll(pageable);
+
+        Page<BloodPressure> page;
+
+        // Only admin user can see all the information. Normal users can only see his data.
+        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN))
+            page = bloodPressureRepository.findAllByOrderByDateTimeDesc(pageable);
+        else
+            page = bloodPressureRepository.findByUserIsCurrentUser(pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/blood-pressures");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

@@ -113,7 +113,13 @@ public class WeightResource {
     public ResponseEntity<List<Weight>> getAllWeights(Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of Weights");
-        Page<Weight> page = weightRepository.findAll(pageable);
+        Page<Weight> page;
+        // Only admin user can see all the information. Normal users can only see his data.
+        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN))
+            page = weightRepository.findAllByOrderByDateTimeDesc(pageable);
+        else
+            page = weightRepository.findByUserIsCurrentUser(pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/weights");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
