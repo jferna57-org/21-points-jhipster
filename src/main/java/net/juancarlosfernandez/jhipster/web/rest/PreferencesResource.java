@@ -7,6 +7,7 @@ import net.juancarlosfernandez.jhipster.domain.User;
 import net.juancarlosfernandez.jhipster.repository.PreferencesRepository;
 import net.juancarlosfernandez.jhipster.repository.UserRepository;
 import net.juancarlosfernandez.jhipster.repository.search.PreferencesSearchRepository;
+import net.juancarlosfernandez.jhipster.security.AuthoritiesConstants;
 import net.juancarlosfernandez.jhipster.security.SecurityUtils;
 import net.juancarlosfernandez.jhipster.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import javax.swing.text.html.Option;
 import javax.xml.ws.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -105,7 +107,16 @@ public class PreferencesResource {
     @Timed
     public List<Preferences> getAllPreferences() {
         log.debug("REST request to get all Preferences");
-        List<Preferences> preferences = preferencesRepository.findAll();
+        List<Preferences> preferences = new ArrayList<>();
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            preferences = preferencesRepository.findAll();
+        } else {
+            Preferences userPreferences = getUserPreferences().getBody();
+            // don't return default value of 10 points in this method
+            if (userPreferences.getId() != null) {
+                preferences.add(userPreferences);
+            }
+        }
         return preferences;
     }
 
